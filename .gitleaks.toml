@@ -372,8 +372,6 @@ regexes = [
   # Older convention.
   '''<see Infisical:''',
   # --- repo-local, preserved across template syncs (ops #2830) ---
-  # `eyJ...` JWTs with `alg:none` test fixtures (3 dots literal then trailing).
-  '''eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.\s*['"]''',
   # ── REPO-LOCAL (ops #2830) ─────────────────────────────────────────────
   # html/cert_form.htm line 31 is a `<textarea placeholder="-----BEGIN
   # PRIVATE KEY-----">` in the upstream certificate-UPLOAD form. The literal
