@@ -283,6 +283,19 @@ paths = [
   '''(^|/)node_modules/''',
   '''(^|/)__pycache__/''',
   '''\.pyc$''',
+  # html/cert_form.htm is a static upload form whose <textarea placeholder="...">
+  # shows an EMPTY PEM block as UI hint text (BEGIN on one line, END on the next,
+  # no key material). It tripped private-key-pem and gitleaks' default private-key.
+  #
+  # This replaces a blanket VALUE regex ('^-----BEGIN [A-Z ]+-----...$') that read as
+  # "allow an empty PEM block" but did far more: private-key-pem captures ONLY the
+  # header line, and gitleaks matches allowlist regexes against the CAPTURED SECRET,
+  # so that entry matched EVERY private-key finding in this repo regardless of key
+  # material. Measured (ops #2897): a planted PEM with a real OPENSSH body was
+  # suppressed too. A value regex cannot distinguish empty from populated here,
+  # because the capture is the header either way -- so the exemption is scoped by
+  # PATH instead, to the single 37-line file that needed it.
+  '''(^|/)html/cert_form\.htm$''',
 ]
 
 # Stop matches that are obviously placeholder / docs / test fixtures.
@@ -388,5 +401,4 @@ regexes = [
   # against the captured secret. (The comment above the regexes block says
   # "matches the LINE" -- that is inaccurate; a line-shaped entry silently
   # never fires. Filed separately.)
-  '''^-----BEGIN [A-Z ]+-----\s*(-----END [A-Z ]+-----)?\s*$''',
 ]
