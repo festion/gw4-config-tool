@@ -203,7 +203,44 @@ id = "anthropic-api-key"
 description = "Anthropic API key (`sk-ant-api03-…` and similar version prefixes)"
 # Format: `sk-ant-api<N>-` then ~95 chars base64url. Self-anchored — no
 # keyword needed; the prefix is unique enough not to false-positive.
-regex = '''(sk-ant-api\d{2,}-[A-Za-z0-9_-]{90,})'''
+#
+# ⚠ THE FLOOR IS 20, NOT 90 (ops #2874). The 90 was a 5-character margin under an
+#   approximate "~95", and it was buying nothing — measured, not argued:
+#
+#   1. THERE IS NO BACKSTOP, AND NOT MERELY BY ABSENCE. gitleaks 8.21.2 ships no
+#      Anthropic rule at all (two instruments: `strings` over the binary finds no
+#      sk-ant/anthropic against four built-in rule ids that ARE visible that way;
+#      and a defaults-only scan misses a well-formed over-length key while
+#      flagging a PEM control in the same pass). Worse, gitleaks' own
+#      `generic-api-key` — which would otherwise catch a high-entropy blob — is
+#      ACTIVELY SUPPRESSED on every Anthropic key by a default-allowlist stopword:
+#
+#          ab-ant-ef03-<body>   NOTHING      ab-antx-ef03-<body>  fires
+#          ant-cd-ef03-<body>   NOTHING      ab-cd-api03-<body>   fires  ('api' is not it)
+#          ab-xant-ef03-<body>  NOTHING      ab-cd-ef03-<body>    fires
+#
+#      `ant` followed by a non-letter suppresses; followed by a letter it does not.
+#      Every Anthropic key is `sk-ant-api<N>-`, so the `ant` is always followed by
+#      `-`. This rule is therefore not one layer of two — it is the only rule that
+#      CAN match. (Behavioural finding; the stopword list was not read from source.)
+#
+#   2. THE UNDER-FLOOR CLIFF WAS ABSOLUTE. Body length the only variable, fleet
+#      config, five contexts each: 95 fires, 90 fires (floor inclusive), and at
+#      89 NOTHING fires in any context — not this rule, not generic-api-key,
+#      nothing. A key one char short was invisible in every repo at once.
+#
+#   3. LOWERING IT COSTS ZERO. 29 files across 26 repos carry the literal
+#      `sk-ant-api`; matches at floor 90 = 0, at floor 20 = 0, new matches = 0.
+#      All 29 are this pattern's own text inside .gitleaks.toml copies. The reason
+#      is structural: the rule is self-anchored on `sk-ant-api\d{2,}-`, so a lower
+#      LENGTH floor cannot widen it onto anything lacking that prefix.
+#      THE PREFIX BUYS THE PRECISION; THE FLOOR NEVER DID. So the choice was never
+#      recall-vs-noise — it was 5 characters of margin where 75 were free.
+#      (Bound: working trees only, git history not scanned.)
+#
+#   Real-key basis for the "~95": one live key measured at body = 95 via
+#   `infisical-names`, which emits name+len+sha16 only — the value was never read.
+regex = '''(sk-ant-api\d{2,}-[A-Za-z0-9_-]{20,})'''
 secretGroup = 1
 keywords = ["sk-ant-api"]
 
@@ -283,6 +320,8 @@ paths = [
   '''(^|/)node_modules/''',
   '''(^|/)__pycache__/''',
   '''\.pyc$''',
+
+  # --- repo-local, preserved across template syncs (ops #2830) ---
   # html/cert_form.htm is a static upload form whose <textarea placeholder="...">
   # shows an EMPTY PEM block as UI hint text (BEGIN on one line, END on the next,
   # no key material). It tripped private-key-pem and gitleaks' default private-key.
@@ -384,21 +423,4 @@ regexes = [
   '''<[A-Z][A-Z0-9_]+(:[^>]+)?>''',
   # Older convention.
   '''<see Infisical:''',
-  # --- repo-local, preserved across template syncs (ops #2830) ---
-  # ── REPO-LOCAL (ops #2830) ─────────────────────────────────────────────
-  # html/cert_form.htm line 31 is a `<textarea placeholder="-----BEGIN
-  # PRIVATE KEY-----">` in the upstream certificate-UPLOAD form. The literal
-  # PEM header is the placeholder text of an empty input, not key material.
-  # Verified by measurement rather than assumption: that line contains ZERO
-  # base64 runs of 20+ chars, and no line in the whole 37-line file contains
-  # a 40+ char base64 run, which real key material necessarily would.
-  # Matched on the LINE, deliberately narrower than allowlisting the path —
-  # a real key pasted into this file would still be caught.
-  # The captured SECRET is an EMPTY PEM envelope -- a BEGIN header, optional
-  # whitespace, optional END footer, and NO base64 body. Real key material
-  # cannot match this. Written against the SECRET, not the line: this
-  # template sets no `regexTarget`, so gitleaks matches allowlist regexes
-  # against the captured secret. (The comment above the regexes block says
-  # "matches the LINE" -- that is inaccurate; a line-shaped entry silently
-  # never fires. Filed separately.)
 ]
