@@ -1,29 +1,42 @@
-# Project Index: gw4-config-tool
-
+# Project Index: festion__gw4-config-tool
 ## 1. Core Purpose
-The `gw4-config-tool` appears to be a web-based configuration tool, likely for a gateway or network device. It provides a user interface (HTML, CSS, JavaScript) for managing various settings such as Wi-Fi, advanced network configurations, and potentially device authentication or certification. The `gulpfile.js` suggests a build or task automation process for the web assets.
+The `festion__gw4-config-tool` project is a web-based configuration interface designed to manage settings for a GW4 (Gateway 4) device or system. It provides a user-friendly frontend for various configurations, including advanced settings, authentication, certificate management, Wi-Fi parameters, and console access.
 
 ## 2. Architecture
-The project follows a client-side web application architecture.
-- **Frontend:** HTML for structure, CSS for styling (including `pure-min.css` for a UI framework), and JavaScript for interactivity. jQuery and jQuery UI are heavily used for UI components and interactions. `i18next` and `jquery-i18next` indicate multi-language support.
-- **Backend Interaction:** While not explicitly defined, the JavaScript files (e.g., `app.js`, `wifi.js`, `advanced.js`) likely interact with a backend system or the gateway device itself via AJAX calls to manage configurations. The `config.json` might hold client-side configuration parameters.
-- **Build System:** Gulp is used for task automation, which could include minification, concatenation, or other asset pipeline operations.
+This project is structured as a client-side web application, built with a traditional HTML, CSS, and JavaScript stack. It heavily utilizes jQuery for DOM manipulation and event handling, along with jQuery UI for enriched user interface components. Specific UI elements are enhanced with `jquery-tagsinput`. Styling is managed through `style.css` and a minimal CSS framework (`pure-min.css`). The application supports internationalization via JSON files in the `locale` directory. Build and automation tasks, such as asset processing and minification, are handled by Gulp, as indicated by `gulpfile.js`.
 
 ## 3. Key Files
-- `index.html`: The main entry point for the web application.
-- `config.json`: Project-specific configuration settings.
-- `gulpfile.js`: Gulp build automation script.
-- `css/style.css`: Custom CSS styles for the application.
-- `js/app.js`: Main application logic.
-- `js/wifi.js`: JavaScript for Wi-Fi configuration management.
-- `js/advanced.js`: JavaScript for advanced settings.
-- `js/jquery.js`, `js/jquery-ui/jquery-ui.min.js`: Core JavaScript libraries for UI and functionality.
-- `locale/en.json`, `locale/zh.json`: Localization files for English and Chinese.
-- `html/*.htm`: Individual HTML partials for different sections of the configuration interface.
-- `package.json`: Node.js project manifest, listing dependencies and scripts.
+*   `config.json`: Stores application-wide configuration parameters.
+*   `css/style.css`: Contains custom CSS rules for the application's visual design.
+*   `gulpfile.js`: Defines automated build tasks and development workflows (e.g., linting, minification, concatenation).
+*   `html/`: Directory containing various HTML partials or views for different sections of the configuration tool (e.g., `advanced.htm`, `app.htm`, `wifi.htm`).
+*   `index.html`: The main entry point of the web application.
+*   `index.js`: Likely the primary JavaScript file responsible for application initialization or routing.
+*   `js/`: Directory containing core JavaScript logic and third-party libraries.
+    *   `js/app.js`: Contains main application logic.
+    *   `js/advanced.js`, `js/equipments.js`, `js/gw_console.js`, `js/wifi.js`: Modules for specific functional areas.
+    *   `js/jquery.js`, `js/jquery-ui/jquery-ui.min.js`: Core jQuery and jQuery UI libraries.
+    *   `js/jquery-tagsinput/jquery.tagsinput.js`: A plugin for creating tag input fields.
+    *   `js/compat.js`: Possibly contains compatibility fixes or polyfills.
+    *   `js/slip.min.js`: A utility for reordering lists with touch and mouse.
+    *   `js/timeout-signal.js`: Manages timeouts for operations.
+    *   `js/zones.json`: A data file, likely containing configuration or options related to geographical or network zones.
+*   `locale/en.json`, `locale/zh.json`: JSON files providing localized strings for English and Chinese, respectively.
+*   `package.json`: Manifest file listing project metadata, scripts, and npm dependencies.
+*   `package-lock.json`: Records the exact dependency tree and versions.
+*   `readme.md`: Provides general information, setup instructions, and usage details for the project.
+*   `.github/workflows/main.yml`: GitHub Actions workflow for continuous integration, building, and deployment.
+*   `.github/workflows/secret-scan.yml`: GitHub Actions workflow for scanning secrets using Gitleaks.
+*   `.gitleaks.toml`: Configuration file for the Gitleaks secret detection tool.
 
 ## 4. Dependencies
-The project relies on a substantial number of Node.js packages managed via `npm` (indicated by `package.json`, `package-lock.json`, and the extensive `node_modules` directory). Key dependencies include:
-- **Frontend Libraries:** `jquery`, `jquery-ui-dist`, `slip` (likely for UI interactions like swipe/reorder), `i18next`, `jquery-i18next`, `purecss`.
-- **Build/Development Tools:** `gulp`, `@gulpjs/*` plugins, `electron-builder` (suggesting potential for a desktop wrapper), `typescript`.
-- **Utility Libraries:** A wide range of utility packages for file system operations (`fs-extra`), streaming (`minipass`), network requests (`got`), path manipulation (`normalize-path`), and more, primarily used during the build process or for development tooling.
+The project relies on Node.js and npm for managing development and client-side dependencies. Key client-side JavaScript libraries include jQuery, jQuery UI, and `jquery-tagsinput`. Gulp and its associated plugins are used for task automation during development and deployment. Specific dependency versions are locked in `package-lock.json`.
+
+## 5. Common Tasks
+Common tasks for this codebase typically involve:
+*   **Setup**: Running `npm install` to install all necessary project dependencies.
+*   **Development**: Executing Gulp tasks (e.g., `gulp build`, `gulp watch`) to compile assets, run a local development server, or automate other development-related processes.
+*   **Linting/Quality Checks**: Running commands (possibly defined in `package.json` scripts or Gulp tasks) to check code style and identify potential issues.
+*   **Building**: Initiating a build process via Gulp to prepare static assets for deployment, which may include minification and concatenation.
+*   **Version Control**: Committing changes, with security scanning for secrets enforced by `.gitleaks.toml` and potentially integrated into pre-commit hooks or CI.
+*   **Continuous Integration**: Automated builds, tests, and secret scanning orchestrated by GitHub Actions workflows (`main.yml`, `secret-scan.yml`) on code pushes or pull requests.
